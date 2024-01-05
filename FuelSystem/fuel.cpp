@@ -29,13 +29,13 @@ const FuelSys& FuelSys::operator=(const FuelSys& rhs) {
  *
  * return: true if a tank was successfully created else false
  */
-bool FuelSys::addTank(int tankID, int capacity, int tankFuel) {
-	if (tankFuel < 0 || tankID < 0 || capacity < 0) {
+bool FuelSys::addTank(int tankID, int capacity) {
+	if (tankID < 0 || capacity < 0) {
 		return false;
 	}
 
 	if (m_current == nullptr) {
-		m_current = new Tank(tankID, capacity, tankFuel);
+		m_current = new Tank(tankID, capacity);
 		return true;
 	}
 
@@ -44,7 +44,7 @@ bool FuelSys::addTank(int tankID, int capacity, int tankFuel) {
 		return false;
 	}
 
-	lastTank->m_next = new Tank(tankID, capacity, tankFuel);
+	lastTank->m_next = new Tank(tankID, capacity);
 
 	return true;
 }

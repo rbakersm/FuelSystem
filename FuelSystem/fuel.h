@@ -53,7 +53,7 @@ public:
     // overloaded assignment operator
     const FuelSys& operator=(const FuelSys& rhs);
     // add to the tank list
-    bool addTank(int tankID, int capacity, int tankFuel);
+    bool addTank(int tankID, int capacity);
     // remove from the tank list
     bool removeTank(int tankID);
     // add pump to the pump list of the tank

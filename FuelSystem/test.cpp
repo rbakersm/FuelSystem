@@ -74,10 +74,38 @@ private:
     std::uniform_real_distribution<double> m_uniReal;//real uniform distribution
 };
 
-class Teseter {
+class Tester {
 public:
+    bool addNormalTank(FuelSys& sys, Random & randCap, int numTanks) {
+        bool result = true;
+
+        for(int tankID = 0; tankID < numTanks; tankID++){
+            sys.addTank(tankID, randCap.getRandNum());
+        }
+
+        Tank* displayTank = sys.m_current;
+        while (displayTank != nullptr) {
+            cout << "Tank: " << displayTank->m_tankID + 1 << " Capacity: " << displayTank->m_tankCapacity << "\n";
+            displayTank = displayTank->m_next;
+        }
+
+        return result;
+    }
 };
 
 int main() {
+    Tester test;
+    FuelSys sys;
+    Random randCap(MINCAP, DEFCAP);
+    int numTanks = 20;
+    int numPumps = 10;
+
+    if (test.addNormalTank(sys, randCap, numTanks)) {
+        cout << "addNormalTank test returned successful\n";
+    }
+    else {
+        cout << "addNormalTank test returned unsuccessful\n";
+    }
+
     return 0;
 }
