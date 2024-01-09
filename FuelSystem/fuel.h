@@ -13,7 +13,6 @@ class FuelSys;//forward declaration
 class Tank {
 public:
     friend class Tester;
-    friend class Grader;
     friend class FuelSys;
     Tank();
     Tank(int ID, int tankCap, int tankFuel = 0,
@@ -32,7 +31,6 @@ private:
 class Pump {
 public:
     friend class Tester;
-    friend class Grader;
     friend class FuelSys;
     Pump();
     Pump(int ID, int target, Pump* nextPump = nullptr) {

@@ -76,21 +76,42 @@ private:
 
 class Tester {
 public:
-    bool addNormalTank(FuelSys& sys, Random & randCap, int numTanks) {
-        bool result = true;
-
-        for(int tankID = 0; tankID < numTanks; tankID++){
-            sys.addTank(tankID, randCap.getRandNum());
-        }
-
+    
+    void displayTanks(FuelSys & sys) {
         Tank* displayTank = sys.m_current;
+
+        cout << "Tank List\n";
+
         while (displayTank != nullptr) {
             cout << "Tank: " << displayTank->m_tankID + 1 << " Capacity: " << displayTank->m_tankCapacity << "\n";
             displayTank = displayTank->m_next;
         }
+    }
+
+    bool addNormalTank(FuelSys & sys, Random & randCap, int numTanks) {
+        bool result = true;
+
+        for(int tankID = 0; tankID < numTanks; tankID++){
+            result = sys.addTank(tankID, randCap.getRandNum());
+        }
+
+        displayTanks(sys);
 
         return result;
     }
+
+    bool removeNormalTank(FuelSys& sys, int numTanks) {
+        bool result = true;
+
+        for (int tankID = 0; tankID < numTanks; tankID++) {
+            result = sys.removeTank(tankID);
+        }
+
+        displayTanks(sys);
+
+        return result;
+    }
+
 };
 
 int main() {
@@ -105,6 +126,13 @@ int main() {
     }
     else {
         cout << "addNormalTank test returned unsuccessful\n";
+    }
+
+    if (test.removeNormalTank(sys, numTanks)) {
+        cout << "removeNormalTank test returned successful\n";
+    }
+    else {
+        cout << "removeNormalTank test returned unsuccessful\n";
     }
 
     return 0;
