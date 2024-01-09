@@ -72,7 +72,7 @@ public:
     void dumpPumps(Pump* pumps) const;
 private:
     Tank* m_current;
-    Tank* findEligibleTank(int tankID);
+    Tank* getEndTank(int tankID);
 
 };
 #endif

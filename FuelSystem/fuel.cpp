@@ -39,7 +39,7 @@ bool FuelSys::addTank(int tankID, int capacity) {
 		return true;
 	}
 
-	Tank* lastTank = findEligibleTank(tankID);
+	Tank* lastTank = getEndTank(tankID);
 	if (lastTank == nullptr) {
 		return false;
 	}
@@ -57,8 +57,8 @@ bool FuelSys::addTank(int tankID, int capacity) {
  *
  * return: last tank in the list if no duplicate ID else nullptr
  */
-Tank* FuelSys::findEligibleTank(int tankID) {
-	Tank* currentTank = m_current;
+Tank* FuelSys::getEndTank(int tankID) {
+	Tank* currentTank = m_current; //Current tank in the list to check against the ID
 
 	while (currentTank->m_next != nullptr) {
 		if (currentTank->m_tankID == tankID) {
@@ -130,7 +130,6 @@ bool FuelSys::removeTank(int tankID) {
 
 /*
 bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
-
 }
 */
 
@@ -148,11 +147,14 @@ bool FuelSys::fill(int tankID, int fuel) {
 bool FuelSys::drain(int tankID, int pumpID, int fuel) {
 
 }
+*/
 
+/*
 bool FuelSys::findTank(int tankID) {
 
 }
 
+/*
 int FuelSys::totalFuel() const {
 
 }
