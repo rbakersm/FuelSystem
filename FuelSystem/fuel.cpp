@@ -150,8 +150,24 @@ bool FuelSys::drain(int tankID, int pumpID, int fuel) {
 */
 
 /*
+ * Function: findTank
+ * ------------------
+ * tankID: ID of the target tank
+ *
+ * Searches the list of tank to find the target ID
+ * 
+ * return: true if the tank is found, false otherwise
+ */
 bool FuelSys::findTank(int tankID) {
+	Tank* currentTank = m_current;
 
+	while (currentTank != nullptr) {
+		if (currentTank->m_tankID == tankID) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /*
