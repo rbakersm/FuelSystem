@@ -73,6 +73,7 @@ public:
 private:
     Tank* m_current;
     Tank* getEndTank(int tankID);
-
+    Tank* getTank(int tankID);
+    bool findPump(int tankID, int pumpID);
 };
 #endif

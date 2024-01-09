@@ -39,17 +39,16 @@ bool FuelSys::addTank(int tankID, int capacity) {
 		return true;
 	}
 
-	Tank* lastTank = getEndTank(tankID);
-	if (lastTank == nullptr) {
-		return false;
+	if (!findTank(tankID)) {
+		Tank* lastTank = getEndTank(tankID);
+		lastTank->m_next = new Tank(tankID, capacity);
+		return true;
 	}
 
-	lastTank->m_next = new Tank(tankID, capacity);
-
-	return true;
+	return false;
 }
 
-/* Function: findEligibleTank
+/* Function: getEndTank
  * --------------------------
  * tankID: potential new tank ID
  *
@@ -65,10 +64,6 @@ Tank* FuelSys::getEndTank(int tankID) {
 			return nullptr;
 		}
 		currentTank = currentTank->m_next;
-	}
-
-	if (currentTank->m_tankID == tankID) {
-		return nullptr;
 	}
 
 	return currentTank;
@@ -129,9 +124,18 @@ bool FuelSys::removeTank(int tankID) {
 }
 
 /*
+ * Function: addPump
+ * -----------------
+ * 
+ */
 bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
+	if (findTank(tankID)) {
+		if (!findPump(tankID, pumpID)) {
+		}
+	}
+
+	return false;
 }
-*/
 
 /*
 bool FuelSys::removePump(int tankID, int pumpID) {
@@ -165,9 +169,52 @@ bool FuelSys::findTank(int tankID) {
 		if (currentTank->m_tankID == tankID) {
 			return true;
 		}
+
+		currentTank = currentTank->m_next;
 	}
 
 	return false;
+}
+
+/*
+ * Function: findPump
+ * ------------------
+ * 
+ */
+bool FuelSys::findPump(int tankID, int pumpID) {
+	Tank* targetTank = getTank(tankID);
+	Pump* currentPump = targetTank->m_pumps;
+
+	while (currentPump != nullptr) {
+		if (currentPump->m_pumpID == pumpID) {
+			return true;
+		}
+
+		currentPump->m_next;
+	}
+
+	return false;
+}
+
+/*
+ * Function: getTank
+ * -----------------
+ * tankID: ID of the target tank
+ * 
+ * Search the tank list for the target ID and return the tank
+ * 
+ * return: The tank object if found in list, else null
+ */
+Tank* FuelSys::getTank(int tankID) {
+	Tank* currentTank = m_current;
+
+	while (currentTank != nullptr) {
+		if (currentTank->m_tankID == tankID) {
+			return currentTank;
+		}
+	}
+
+	return nullptr;
 }
 
 /*
