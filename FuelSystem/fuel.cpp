@@ -83,10 +83,10 @@ bool FuelSys::removeTank(int tankID) {
 
 	//Go through the list and find the tankID
 	while (currentTank != nullptr) {
-		previousTank = currentTank;
 		if (currentTank->m_tankID == tankID) {
 			break;
 		}
+		previousTank = currentTank;
 		currentTank = currentTank->m_next;
 	}
 
@@ -102,18 +102,15 @@ bool FuelSys::removeTank(int tankID) {
 		previousTank->m_next = currentTank->m_next;
 	}
 
-	/*
-	Pump* deletePump = findTank->m_pumps;
+	Pump* currentPump = currentTank->m_pumps;
 	Pump* nextPump = nullptr;
-	*/
 
-	/*
-	while (deletePump != nullptr) {
-		nextPump = deletePump->m_next;
-		removePump(findTank->m_tankID, deletePump->m_pumpID);
-		deletePump = nextPump;
+	while (currentPump != nullptr) {
+		nextPump = currentPump->m_next;
+		removePump(currentTank->m_tankID, currentPump->m_pumpID);
+		currentPump = nextPump;
 	}
-	*/
+
 	delete currentTank;
 	currentTank = nullptr;
 
@@ -126,8 +123,8 @@ bool FuelSys::removeTank(int tankID) {
  * 
  */
 bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
-	if (findTank(tankID)) {
-		if (!findPump(tankID, pumpID)) {
+	if (findTank(tankID) && findTank(targetTank)) {
+		if (!findPump(getTank(tankID), pumpID)) {
 			Tank* tank = getTank(tankID);
 
 			if (tank->m_pumps == nullptr) {
@@ -137,7 +134,7 @@ bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
 
 			Pump* endPump = getEndPump(tank);
 			endPump->m_next = new Pump(pumpID, targetTank);
-
+			return true;
 		}
 	}
 
@@ -145,10 +142,44 @@ bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
 }
 
 /*
+ * Function: removePump
+ * --------------------
+ * 
+ */
 bool FuelSys::removePump(int tankID, int pumpID) {
+	Tank* targetTank = getTank(tankID);
 
+	if (targetTank == nullptr || targetTank->m_pumps == nullptr) {
+		return false;
+	}
+
+	Pump* currentPump = targetTank->m_pumps;
+	Pump* previousPump = targetTank->m_pumps;
+
+	while (currentPump != nullptr) {
+		if (currentPump->m_pumpID == pumpID) {
+			break;
+		}
+		previousPump = currentPump;
+		currentPump = currentPump->m_next;
+	}
+
+	if (currentPump == nullptr) {
+		return false;
+	}
+
+	if (previousPump->m_pumpID == pumpID) {
+		targetTank->m_pumps = currentPump->m_next;
+	}
+	else {
+		previousPump->m_next = currentPump->m_next;
+	}
+
+	delete currentPump;
+	currentPump = nullptr;
+	
+	return true;
 }
-*/
 
 /*
 bool FuelSys::fill(int tankID, int fuel) {
@@ -191,16 +222,15 @@ bool FuelSys::findTank(int tankID) {
  * 
  * return: true if the pump was found, false otherwise
  */
-bool FuelSys::findPump(int tankID, int pumpID) {
-	Tank* targetTank = getTank(tankID);
-	Pump* currentPump = targetTank->m_pumps;
+bool FuelSys::findPump(Tank* tank, int pumpID) {
+	Pump* currentPump = tank->m_pumps;
 
 	while (currentPump != nullptr) {
 		if (currentPump->m_pumpID == pumpID) {
 			return true;
 		}
 
-		currentPump->m_next;
+		currentPump = currentPump->m_next;
 	}
 
 	return false;
@@ -214,7 +244,7 @@ Pump* FuelSys::getEndPump(Tank* tank) {
 	Pump* currentPump = tank->m_pumps;
 
 	while (currentPump->m_next != nullptr) {
-		currentPump->m_next;
+		currentPump = currentPump->m_next;
 	}
 
 	return currentPump;
@@ -236,6 +266,8 @@ Tank* FuelSys::getTank(int tankID) {
 		if (currentTank->m_tankID == tankID) {
 			return currentTank;
 		}
+
+		currentTank = currentTank->m_next;
 	}
 
 	return nullptr;

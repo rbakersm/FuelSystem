@@ -84,6 +84,11 @@ public:
 
         while (displayTank != nullptr) {
             cout << "Tank: " << displayTank->m_tankID + 1 << " Capacity: " << displayTank->m_tankCapacity << "\n";
+            Pump* displayPump = displayTank->m_pumps;
+            while (displayPump != nullptr) {
+                cout << "Pump: " << displayPump->m_pumpID + 1 << " Target Tank: " << displayPump->m_target << "\n";
+                displayPump = displayPump->m_next;
+            }
             displayTank = displayTank->m_next;
         }
     }
@@ -112,20 +117,65 @@ public:
         return result;
     }
 
+    bool addNormalPump(FuelSys& sys, int numTanks, int numPumps) {
+        bool result = true;
+
+        for (int tankID = 0; tankID < numTanks; tankID++) {
+            for (int pumpID = 0; pumpID < numPumps; pumpID++) {
+                int targetID = (tankID + 1) % numTanks;
+                result = sys.addPump(tankID, pumpID, targetID);
+            }
+        }
+
+        displayTanks(sys);
+
+        return result;
+    }
+
+    bool removeNormalPump(FuelSys& sys, int numTanks, int numPumps) {
+        bool result = true;
+
+        for (int tankID = 0; tankID < numTanks; tankID++) {
+            for (int pumpID = 0; pumpID < numPumps; pumpID++) {
+                if (pumpID % 2 == 0) {
+                    result = sys.removePump(tankID, pumpID);
+                }
+            }
+        }
+
+        displayTanks(sys);
+
+        return result;
+    }
+
 };
 
 int main() {
     Tester test;
     FuelSys sys;
     Random randCap(MINCAP, DEFCAP);
-    int numTanks = 20;
-    int numPumps = 10;
+    int numTanks = 10;
+    int numPumps = 5;
 
     if (test.addNormalTank(sys, randCap, numTanks)) {
         cout << "addNormalTank test returned successful\n";
     }
     else {
         cout << "addNormalTank test returned unsuccessful\n";
+    }
+
+    if (test.addNormalPump(sys, numTanks, numPumps)) {
+        cout << "addNormalPump test returned successsful\n";
+    }
+    else {
+        cout << "addNormalPump test returned unsuccessful\n";
+    }
+
+    if (test.removeNormalPump(sys, numTanks, numPumps)) {
+        cout << "removeNormalPump test returned successful\n";
+    }
+    else {
+        cout << "removeNormalPump test returned unsuccessful\n";
     }
 
     if (test.removeNormalTank(sys, numTanks)) {
