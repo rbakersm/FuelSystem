@@ -76,22 +76,6 @@ private:
 
 class Tester {
 public:
-    
-    void displayTanks(FuelSys & sys) {
-        Tank* displayTank = sys.m_current;
-
-        cout << "Tank List\n";
-
-        while (displayTank != nullptr) {
-            cout << "Tank: " << displayTank->m_tankID + 1 << " Capacity: " << displayTank->m_tankCapacity << "\n";
-            Pump* displayPump = displayTank->m_pumps;
-            while (displayPump != nullptr) {
-                cout << "Pump: " << displayPump->m_pumpID + 1 << " Target Tank: " << displayPump->m_target << "\n";
-                displayPump = displayPump->m_next;
-            }
-            displayTank = displayTank->m_next;
-        }
-    }
 
     bool addNormalTank(FuelSys & sys, Random & randCap, int numTanks) {
         bool result = true;
@@ -100,7 +84,7 @@ public:
             result = sys.addTank(tankID, randCap.getRandNum());
         }
 
-        displayTanks(sys);
+        sys.dumpSys();
 
         return result;
     }
@@ -112,7 +96,7 @@ public:
             result = sys.removeTank(tankID);
         }
 
-        displayTanks(sys);
+        sys.dumpSys();
 
         return result;
     }
@@ -127,7 +111,7 @@ public:
             }
         }
 
-        displayTanks(sys);
+        sys.dumpSys();
 
         return result;
     }
@@ -143,7 +127,7 @@ public:
             }
         }
 
-        displayTanks(sys);
+        sys.dumpSys();
 
         return result;
     }

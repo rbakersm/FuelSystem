@@ -277,11 +277,36 @@ Tank* FuelSys::getTank(int tankID) {
 int FuelSys::totalFuel() const {
 
 }
-
-void FuelSys::dumpSys() const {
-
-}
-
-void FuelSys::dumpPumps(Pump* pumps) const {
-}
 */
+
+
+/*
+ * Function: dumpSys
+ * -----------------
+ * Outputs the list of tanks and their info
+ */
+void FuelSys::dumpSys() const {
+	Tank* currentTank = m_current;
+
+	cout << "Tank List:\n";
+
+	while (currentTank != nullptr) {
+		cout << "Tank: " << currentTank->m_tankID << " Capacity: " << currentTank->m_tankCapacity << "\n";
+		dumpPumps(currentTank->m_pumps);
+		currentTank = currentTank->m_next;
+	}
+}
+
+/*
+ * Function: dumpPumps
+ * -------------------
+ * pumps: The head of a tank's pump list
+ * 
+ * Outputs the list of pumps and their target tanks
+ */
+void FuelSys::dumpPumps(Pump* pumps) const {
+	while (pumps != nullptr) {
+		cout << "Pumps: " << pumps->m_pumpID << " Target Tank: " << pumps->m_target << "\n";
+		pumps = pumps->m_next;
+	}
+}
