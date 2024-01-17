@@ -101,6 +101,17 @@ public:
         return result;
     }
 
+    bool findNormalTank(FuelSys& sys, int numTanks) {
+        bool result = true;
+
+        result = sys.findTank(0);
+        result = sys.findTank(0);
+        result = sys.findTank(4);
+        sys.dumpSys();
+
+        return result;
+    }
+
     bool addNormalPump(FuelSys& sys, int numTanks, int numPumps) {
         bool result = true;
 
@@ -146,6 +157,13 @@ int main() {
     }
     else {
         cout << "addNormalTank test returned unsuccessful\n";
+    }
+
+    if (test.findNormalTank(sys, numTanks)) {
+        cout << "findNormalTank test returned successful\n";
+    }
+    else {
+        cout << "findNormalTank test returned unsuccessful\n";
     }
 
     if (test.addNormalPump(sys, numTanks, numPumps)) {
