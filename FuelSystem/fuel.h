@@ -74,6 +74,7 @@ private:
     Tank* m_current;
     Tank* getEndTank(int tankID);
     Tank* getTank(int tankID);
+    Pump* getPump(Tank* tank, int pumpID);
     Pump* getEndPump(Tank* tank);
     bool findPump(Tank* tank, int pumpID);
 };

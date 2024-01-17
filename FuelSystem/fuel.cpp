@@ -123,7 +123,7 @@ bool FuelSys::removeTank(int tankID) {
  * 
  */
 bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
-	if (findTank(tankID) && findTank(targetTank)) {
+	if (findTank(targetTank) && findTank(tankID)) {
 		if (!findPump(m_current->m_next , pumpID)) {
 			Tank* tank = m_current->m_next;
 
@@ -182,14 +182,72 @@ bool FuelSys::removePump(int tankID, int pumpID) {
 }
 
 /*
+ * Function: fill
+ * --------------
+ * tankID:
+ * fuel:
+ * 
+ * Adds 
+ * 
+ * return: true if some amount of fuel was added to the tank, false if the tank could be found or it's full
+ */
 bool FuelSys::fill(int tankID, int fuel) {
+	if (findTank(tankID)) {
+		Tank* fillTank = m_current->m_next;
+		int neededFuel = fillTank->m_tankCapacity - fillTank->m_tankFuel;
+		//Tank is full
+		if (neededFuel != 0) {
+			if (fuel > neededFuel) {
+				fillTank->m_tankFuel += neededFuel;
+			}
+			else {
+				fillTank->m_tankFuel += fuel;
+			}
 
+			return true;
+		}
+	}
+
+	return false;
 }
 
+/*
+ * Function: drain
+ * ---------------
+ * tankID:
+ * pumpID:
+ * fuel:
+ * 
+ * 
+ * 
+ * return:
+ */
 bool FuelSys::drain(int tankID, int pumpID, int fuel) {
+	if (findTank(tankID)) {
+		Tank* sourceTank = m_current->m_next;
+		if (fuel > sourceTank->m_tankFuel) {
+			fuel = sourceTank->m_tankFuel;
+		}
+		if (findPump(sourceTank, pumpID)) {
+			Pump* sourcePump = getPump(sourceTank, pumpID);
+			Tank* destinationTank = getTank(sourcePump->m_target);
+			int neededFuel = destinationTank->m_tankCapacity - destinationTank->m_tankFuel;
+			
+			if (neededFuel != 0){
+				if (fuel > neededFuel) {
+					sourceTank->m_tankFuel -= neededFuel;
+					return fill(destinationTank->m_tankID, neededFuel);
+				}
+				else {
+					sourceTank->m_tankFuel -= fuel;
+					return fill(destinationTank->m_tankID, fuel);
+				}
+			}
+		}
+	}
 
+	return false;
 }
-*/
 
 /*
  * Function: findTank
@@ -287,10 +345,47 @@ Tank* FuelSys::getTank(int tankID) {
 }
 
 /*
-int FuelSys::totalFuel() const {
+ * Function: getPump
+ * -----------------
+ * tank:
+ * pumpID:
+ * 
+ * 
+ * 
+ * return:
+ */
+Pump* FuelSys::getPump(Tank* tank, int pumpID) {
+	Pump* currentPump = tank->m_pumps;
 
+	while (currentPump != nullptr) {
+		if (currentPump->m_pumpID == pumpID) {
+			return currentPump;
+		}
+
+		currentPump = currentPump->m_next;
+	}
+
+	return nullptr;
 }
-*
+
+/*
+ * Function: totalFuel
+ * -------------------
+ * Adds up the fuel from all the tanks in the system
+ * 
+ * return: The total fuel in the system
+ */
+int FuelSys::totalFuel() const {
+	Tank* currentTank = m_current;
+	int totalFuel = 0;
+
+	while (currentTank != nullptr) {
+		totalFuel += currentTank->m_tankFuel;
+		currentTank = currentTank->m_next;
+	}
+
+	return totalFuel;
+}
 
 /*
  * Function: dumpSys
@@ -303,7 +398,7 @@ void FuelSys::dumpSys() const {
 	cout << "Tank List:\n";
 
 	while (currentTank != nullptr) {
-		cout << "Tank: " << currentTank->m_tankID << " Capacity: " << currentTank->m_tankCapacity << "\n";
+		cout << "Tank: " << currentTank->m_tankID << " Capacity: " << currentTank->m_tankCapacity << " Current Fuel: " << currentTank->m_tankFuel << "\n";
 		dumpPumps(currentTank->m_pumps);
 		currentTank = currentTank->m_next;
 	}
