@@ -77,6 +77,17 @@ private:
 class Tester {
 public:
 
+    /*
+     * Function: addNormalTank
+     * -----------------------
+     * sys: Fuel system object
+     * randCap: Random capacity for each tank
+     * numTanks: Number of tanks to add to the system
+     * 
+     * Adds tanks with valid ids and capacities to the fuel system
+     * 
+     * return: True if all tanks were added, false otherwise
+     */
     bool addNormalTank(FuelSys & sys, Random & randCap, int numTanks) {
         bool result = true;
 
@@ -89,6 +100,16 @@ public:
         return result;
     }
 
+    /*
+     * Function: removeNormalTank
+     * --------------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * 
+     * Remove existing tanks from the list
+     * 
+     * return: True if each tank chosen was removed, false otherwise
+     */
     bool removeNormalTank(FuelSys& sys, int numTanks) {
         bool result = true;
 
@@ -103,6 +124,16 @@ public:
         return result;
     }
 
+    /*
+     * Function: findNormalTank
+     * ------------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * 
+     * Finds existing tanks from the list
+     * 
+     * return: True if existing tanks are found and moved, false otherwise
+     */
     bool findNormalTank(FuelSys& sys, int numTanks) {
         bool result = true;
 
@@ -114,6 +145,17 @@ public:
         return result;
     }
 
+    /*
+     * Function: addNormalPump
+     * -----------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * numPumps: Number of pumps to add to each tank
+     * 
+     * Adds pumps with valid ids and targets to each tank
+     * 
+     * return: True if every pump was added, false otherwise
+     */
     bool addNormalPump(FuelSys& sys, int numTanks, int numPumps) {
         bool result = true;
 
@@ -129,6 +171,17 @@ public:
         return result;
     }
 
+    /*
+     * Function: removeNormalPump
+     * --------------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * numPumps: Number of pumps in the system
+     * 
+     * Remove existing pumps from the list of tanks
+     * 
+     * return: True if each chosen pump is removed, false otherwise
+     */
     bool removeNormalPump(FuelSys& sys, int numTanks, int numPumps) {
         bool result = true;
 
@@ -150,10 +203,11 @@ public:
 int main() {
     Tester test;
     FuelSys sys;
-    Random randCap(MINCAP, DEFCAP);
-    int numTanks = 10;
-    int numPumps = 5;
+    Random randCap(MINCAP, DEFCAP); //Range for valid test capacities
+    int numTanks = 10; //Number of tanks in the system
+    int numPumps = 5; //Number of pumps in the system
 
+    //Tests adding tanks
     if (test.addNormalTank(sys, randCap, numTanks)) {
         cout << "addNormalTank test returned successful\n";
     }
@@ -161,6 +215,7 @@ int main() {
         cout << "addNormalTank test returned unsuccessful\n";
     }
 
+    //Tests finding tanks
     if (test.findNormalTank(sys, numTanks)) {
         cout << "findNormalTank test returned successful\n";
     }
@@ -168,6 +223,7 @@ int main() {
         cout << "findNormalTank test returned unsuccessful\n";
     }
 
+    //Tests adding pumps
     if (test.addNormalPump(sys, numTanks, numPumps)) {
         cout << "addNormalPump test returned successsful\n";
     }
@@ -175,6 +231,7 @@ int main() {
         cout << "addNormalPump test returned unsuccessful\n";
     }
 
+    //Tests removing pumps
     if (test.removeNormalPump(sys, numTanks, numPumps)) {
         cout << "removeNormalPump test returned successful\n";
     }
@@ -182,6 +239,7 @@ int main() {
         cout << "removeNormalPump test returned unsuccessful\n";
     }
 
+    //Tests removing tanks
     if (test.removeNormalTank(sys, numTanks)) {
         cout << "removeNormalTank test returned successful\n";
     }
