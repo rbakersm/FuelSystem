@@ -444,6 +444,8 @@ void FuelSys::dumpSys() const {
 		dumpPumps(currentTank->m_pumps);
 		currentTank = currentTank->m_next;
 	}
+
+	cout << "Total Fuel: " << totalFuel() << "\n";
 }
 
 /*

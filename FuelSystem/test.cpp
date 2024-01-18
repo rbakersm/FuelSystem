@@ -92,7 +92,61 @@ public:
         bool result = true;
 
         for(int tankID = 0; tankID < numTanks; tankID++){
-            result = sys.addTank(tankID, randCap.getRandNum());
+            result = result && sys.addTank(tankID, randCap.getRandNum());
+        }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: fillNormalTank
+     * ------------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * 
+     * Fill existing tanks in the list
+     * 
+     * return: True if each chosen tank is filled, false otherwise
+     */
+    bool fillNormalTank(FuelSys& sys, int numTanks) {
+        bool result = true;
+
+        for (int tankID = 0; tankID < numTanks; tankID++) {
+            if (tankID % 2 == 0) {
+                //Fill partial then the rest
+                result = result && sys.fill(tankID, MINCAP / 2);
+                result = result && sys.fill(tankID, DEFCAP);
+            }
+        }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: drainNormalTank
+     * -------------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * numPumps: Number of pumps in the system
+     * 
+     * Drain existing tanks in the list and fills the target tanks
+     * 
+     * return: True if each chosen tank is drained and the other tank filled, false otherwise
+     */
+    bool drainNormalTank(FuelSys& sys, int numTanks, int numPumps) 
+    {
+        bool result = true;
+
+        for (int tankID = 0; tankID < numTanks; tankID++) {
+            if (tankID % 2 == 0) {
+                for (int pumpID = 0; pumpID < numPumps; pumpID++) {
+                    result = result && sys.drain(tankID, pumpID, MINCAP / numPumps);
+                }
+            }
         }
 
         sys.dumpSys();
@@ -115,7 +169,7 @@ public:
 
         for (int tankID = 0; tankID < numTanks; tankID++) {
             if (tankID % 2 == 0) {
-                result = sys.removeTank(tankID);
+                result = result && sys.removeTank(tankID);
             }
         }
 
@@ -137,9 +191,9 @@ public:
     bool findNormalTank(FuelSys& sys, int numTanks) {
         bool result = true;
 
-        result = sys.findTank(0);
-        result = sys.findTank(0);
-        result = sys.findTank(4);
+        result = result && sys.findTank(0);
+        result = result && sys.findTank(0);
+        result = result && sys.findTank(4);
         sys.dumpSys();
 
         return result;
@@ -162,7 +216,7 @@ public:
         for (int tankID = 0; tankID < numTanks; tankID++) {
             for (int pumpID = 0; pumpID < numPumps; pumpID++) {
                 int targetID = (tankID + 1) % numTanks;
-                result = sys.addPump(tankID, pumpID, targetID);
+                result = result && sys.addPump(tankID, pumpID, targetID);
             }
         }
 
@@ -188,7 +242,7 @@ public:
         for (int tankID = 0; tankID < numTanks; tankID++) {
             for (int pumpID = 0; pumpID < numPumps; pumpID++) {
                 if (pumpID % 2 == 0) {
-                    result = sys.removePump(tankID, pumpID);
+                    result = result && sys.removePump(tankID, pumpID);
                 }
             }
         }
@@ -229,6 +283,21 @@ int main() {
     }
     else {
         cout << "addNormalPump test returned unsuccessful\n";
+    }
+
+    //Tests filling and transferring fuel to pumps
+    if (test.fillNormalTank(sys, numTanks)) {
+        cout << "fillNormalTank test returned successful\n";
+    }
+    else {
+        cout << "fillNormalTank test returned unsuccesful\n";
+    }
+
+    if (test.drainNormalTank(sys, numTanks, numPumps)) {
+        cout << "drainNormalTank test returned successful\n";
+    }
+    else {
+        cout << "drainNormalTank test returned unsuccessful\n";
     }
 
     //Tests removing pumps
