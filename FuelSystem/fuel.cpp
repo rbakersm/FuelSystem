@@ -5,12 +5,8 @@ FuelSys::FuelSys() {
 }
 
 FuelSys::~FuelSys() {
-	Tank* nextTank = nullptr;
-
 	while (m_current != nullptr) {
-		nextTank = m_current->m_next;
 		removeTank(m_current->m_tankID);
-		m_current = nextTank;
 	}
 }
 
@@ -21,16 +17,16 @@ const FuelSys& FuelSys::operator=(const FuelSys& rhs) {
 
 /* Function: addTank
  * -----------------
- * tankID: unique ID
+ * tankID: Unique ID to assign new tank
  * capacity: How much fuel the tank can hold
  * tankFuel: Current amount of fuel in the tank at add
  *
- * Tries to add a new tank to the list
+ * Add a new tank to the list
  *
- * return: true if a tank was successfully created else false
+ * return: True if a tank was successfully created else false
  */
 bool FuelSys::addTank(int tankID, int capacity) {
-	if (tankID < 0 || capacity < 0) {
+	if (tankID < 0 || capacity < MINCAP) {
 		return false;
 	}
 
@@ -50,11 +46,11 @@ bool FuelSys::addTank(int tankID, int capacity) {
 
 /* Function: getEndTank
  * --------------------------
- * tankID: potential new tank ID
+ * tankID: Potential new tank ID
  *
  * Checks the list of existing tanks for duplicate ID
  *
- * return: last tank in the list if no duplicate ID else nullptr
+ * return: Last tank in the list if no duplicate ID else nullptr
  */
 Tank* FuelSys::getEndTank(int tankID) {
 	Tank* currentTank = m_current; //Current tank in the list to check against the ID
@@ -69,9 +65,11 @@ Tank* FuelSys::getEndTank(int tankID) {
 
 /* Function: removeTank
  * --------------------
- * tankID:
+ * tankID: ID of the tank to remove
  * 
+ * Removes target tank and each of its pumps
  * 
+ * return: True if the tank is removed from the list, else false
  */
 bool FuelSys::removeTank(int tankID) {
 	Tank* currentTank = m_current;
@@ -102,6 +100,7 @@ bool FuelSys::removeTank(int tankID) {
 		previousTank->m_next = currentTank->m_next;
 	}
 
+	//Delete each of the pumps
 	Pump* currentPump = currentTank->m_pumps;
 	Pump* nextPump = nullptr;
 
@@ -120,12 +119,27 @@ bool FuelSys::removeTank(int tankID) {
 /*
  * Function: addPump
  * -----------------
+ * tankID: Tank to add the pump to
+ * pumpID: Unique ID to assign the new pump
+ * targetID: Tank that the pump drains to
  * 
+ * Add a pump to an existing tank
+ * 
+ * return: True if the pump was added, else false
  */
 bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
+	//Checks both the existing tank and the target are in the list
 	if (findTank(targetTank) && findTank(tankID)) {
-		if (!findPump(m_current->m_next , pumpID)) {
-			Tank* tank = m_current->m_next;
+		Tank* currentTank = nullptr;
+		//Checks that the ID does not exist
+		if (m_current->m_next == nullptr) {
+			currentTank = m_current;
+		}
+		else {
+			currentTank = m_current->m_next;
+		}
+		if (!findPump(currentTank, pumpID)) {
+			Tank* tank = currentTank;
 
 			if (tank->m_pumps == nullptr) {
 				tank->m_pumps = new Pump(pumpID, targetTank);
@@ -144,7 +158,12 @@ bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
 /*
  * Function: removePump
  * --------------------
+ * tankID: Tank to remove the pump from
+ * pumpID: Pump to be removed
  * 
+ * Removes a pump from the tank it's attached to
+ * 
+ * return: True if the pump is removed, else false
  */
 bool FuelSys::removePump(int tankID, int pumpID) {
 	Tank* targetTank = getTank(tankID);
@@ -156,6 +175,7 @@ bool FuelSys::removePump(int tankID, int pumpID) {
 	Pump* currentPump = targetTank->m_pumps;
 	Pump* previousPump = targetTank->m_pumps;
 
+	//Find the pump
 	while (currentPump != nullptr) {
 		if (currentPump->m_pumpID == pumpID) {
 			break;
@@ -168,6 +188,7 @@ bool FuelSys::removePump(int tankID, int pumpID) {
 		return false;
 	}
 
+	//Remove the gap from getting rid of the pump
 	if (previousPump->m_pumpID == pumpID) {
 		targetTank->m_pumps = currentPump->m_next;
 	}
@@ -184,16 +205,22 @@ bool FuelSys::removePump(int tankID, int pumpID) {
 /*
  * Function: fill
  * --------------
- * tankID:
- * fuel:
+ * tankID: Tank to add fuel to
+ * fuel: Amount of fuel to add
  * 
- * Adds 
+ * Adds fuel to a tank
  * 
- * return: true if some amount of fuel was added to the tank, false if the tank could be found or it's full
+ * return: True if some amount of fuel was added to the tank, false if the tank could be found or it's full
  */
 bool FuelSys::fill(int tankID, int fuel) {
 	if (findTank(tankID)) {
-		Tank* fillTank = m_current->m_next;
+		Tank* fillTank = nullptr;
+		if (m_current->m_next == nullptr) {
+			fillTank = m_current;
+		}
+		else {
+			fillTank = m_current->m_next;
+		}
 		int neededFuel = fillTank->m_tankCapacity - fillTank->m_tankFuel;
 		//Tank is full
 		if (neededFuel != 0) {
@@ -214,17 +241,25 @@ bool FuelSys::fill(int tankID, int fuel) {
 /*
  * Function: drain
  * ---------------
- * tankID:
- * pumpID:
- * fuel:
+ * tankID: Source tank to drain fuel from
+ * pumpID: Pump used to transfer from source to destination tank
+ * fuel: Amount of fuel to take from the source
  * 
+ * Transfers fuel from a tank to the pump's target tank
  * 
- * 
- * return:
+ * return: True if fuel was transferred
  */
 bool FuelSys::drain(int tankID, int pumpID, int fuel) {
 	if (findTank(tankID)) {
-		Tank* sourceTank = m_current->m_next;
+		Tank* sourceTank = nullptr;
+
+		if (m_current->m_next == nullptr) {
+			sourceTank = m_current;
+		}
+		else {
+			sourceTank = m_current->m_next;
+		}
+		//Decrease the amount of fuel if there is not enough in the tnak
 		if (fuel > sourceTank->m_tankFuel) {
 			fuel = sourceTank->m_tankFuel;
 		}
@@ -234,6 +269,7 @@ bool FuelSys::drain(int tankID, int pumpID, int fuel) {
 			int neededFuel = destinationTank->m_tankCapacity - destinationTank->m_tankFuel;
 			
 			if (neededFuel != 0){
+				//Decrease the amount of fuel if there is not enough space available
 				if (fuel > neededFuel) {
 					sourceTank->m_tankFuel -= neededFuel;
 					return fill(destinationTank->m_tankID, neededFuel);
@@ -256,7 +292,7 @@ bool FuelSys::drain(int tankID, int pumpID, int fuel) {
  *
  * Searches the list of tank to find the target ID. If found, sets it to the next of the current tank.
  * 
- * return: true if the tank is found, false otherwise
+ * return: True if the tank is found, false otherwise
  */
 bool FuelSys::findTank(int tankID) {
 	Tank* currentTank = m_current;
@@ -264,12 +300,17 @@ bool FuelSys::findTank(int tankID) {
 
 	while (currentTank != nullptr) {
 		if (currentTank->m_tankID == tankID) {
+			//If it's the first tank, swap it with the second if it exists
 			if (m_current->m_tankID == tankID) {
-				Tank* temp = m_current->m_next;
-				m_current->m_next = temp->m_next;
-				temp->m_next = m_current;
-				m_current = temp;
+				if (m_current->m_next != nullptr) {
+					Tank* temp = m_current->m_next;
+					m_current->m_next = temp->m_next;
+					temp->m_next = m_current;
+					m_current = temp;
+				}
 			}
+			//If the tank is past the second tank, set the previous tank's next to this tanks next
+			//Set this tank's next to the third tank and set the first tank's next to this
 			else if (m_current->m_next->m_tankID != tankID) {
 				previousTank->m_next = currentTank->m_next;
 				currentTank->m_next = m_current->m_next;
@@ -310,6 +351,7 @@ bool FuelSys::findPump(Tank* tank, int pumpID) {
 /*
  * Function: getEndPump
  * --------------------
+ * return: Last pump in the list
  */
 Pump* FuelSys::getEndPump(Tank* tank) {
 	Pump* currentPump = tank->m_pumps;
@@ -347,12 +389,12 @@ Tank* FuelSys::getTank(int tankID) {
 /*
  * Function: getPump
  * -----------------
- * tank:
- * pumpID:
+ * tank: Tank to get the pump from
+ * pumpID: ID of the pump to get
  * 
+ * Search the tank's pump list for the pump ID
  * 
- * 
- * return:
+ * return: Pump object if found in the tank, else null
  */
 Pump* FuelSys::getPump(Tank* tank, int pumpID) {
 	Pump* currentPump = tank->m_pumps;

@@ -93,7 +93,9 @@ public:
         bool result = true;
 
         for (int tankID = 0; tankID < numTanks; tankID++) {
-            result = sys.removeTank(tankID);
+            if (tankID % 2 == 0) {
+                result = sys.removeTank(tankID);
+            }
         }
 
         sys.dumpSys();
