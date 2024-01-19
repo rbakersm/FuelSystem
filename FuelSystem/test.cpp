@@ -252,11 +252,34 @@ public:
         return result;
     }
 
+    /*
+     * Function: copyNormalSys
+     * ------------------------
+     * source: Fuel system to copy tanks from
+     * destination: Fuel system to copy tanks to
+     * 
+     * 
+     */
+    bool copyNormalSys(FuelSys& source, FuelSys& destination, int numTanks) {
+        bool result = true;
+
+        destination = source;
+
+        for (int tankID = 0; tankID < numTanks; tankID++) {
+            result = result && source.findTank(tankID);
+            result = result && destination.findTank(tankID);
+        }
+
+        destination.dumpSys();
+
+        return result;
+    }
 };
 
 int main() {
     Tester test;
     FuelSys sys;
+    FuelSys emptySys;
     Random randCap(MINCAP, DEFCAP); //Range for valid test capacities
     int numTanks = 10; //Number of tanks in the system
     int numPumps = 5; //Number of pumps in the system
@@ -298,6 +321,14 @@ int main() {
     }
     else {
         cout << "drainNormalTank test returned unsuccessful\n";
+    }
+
+    //Tests copying fuel systems
+    if (test.copyNormalSys(sys, emptySys, numTanks)) {
+        cout << "copyNormalSys test returned successful\n";
+    }
+    else {
+        cout << "copyNormalSys test returned unsuccessful\n";
     }
 
     //Tests removing pumps

@@ -11,9 +11,58 @@ FuelSys::~FuelSys() {
 }
 
 /*
+ * Function: operator=
+ * -------------------
+ * rhs: Existing Fuel System
+ * 
+ * Copy the tanks and pumps from an existing fuel system to this system
+ */ 
 const FuelSys& FuelSys::operator=(const FuelSys& rhs) {
+	//If it's the same system, no change
+	if (this == &rhs)
+	{
+		return *this;
+	}
 
-}*/
+	//Clears this system
+	while (m_current != nullptr) {
+		removeTank(m_current->m_tankID);
+	}
+
+	Tank* currentCopyTank = rhs.m_current;
+
+	//Creates tanks in this system using existing IDs, capacities, and current fuel
+	while (currentCopyTank != nullptr) {
+		int tankID = currentCopyTank->m_tankID;
+		int capacity = currentCopyTank->m_tankCapacity;
+		addTank(tankID, capacity);
+
+		Tank* currentTank = getTank(tankID);
+		currentTank->m_tankFuel = currentCopyTank->m_tankFuel;
+
+		Pump* currentCopyPump = currentCopyTank->m_pumps;
+
+		//Creates pumps in respective tanks using existing IDs and targets
+		while (currentCopyPump != nullptr) {
+			int pumpID = currentCopyPump->m_pumpID;
+			int targetID = currentCopyPump->m_target;
+
+			if (currentTank->m_pumps == nullptr) {
+				currentTank->m_pumps = new Pump(pumpID, targetID);
+			}
+			else {
+				Pump* endPump = getEndPump(currentTank);
+				endPump->m_next = new Pump(pumpID, targetID);
+			}
+
+			currentCopyPump = currentCopyPump->m_next;
+		}
+
+		currentCopyTank = currentCopyTank->m_next;
+	}
+
+	return *this;
+}
 
 /* Function: addTank
  * -----------------
