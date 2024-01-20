@@ -88,12 +88,67 @@ public:
      * 
      * return: True if all tanks were added, false otherwise
      */
-    bool addNormalTank(FuelSys & sys, Random & randCap, int numTanks) {
+    bool addNormalTank(FuelSys& sys, Random & randCap, int numTanks) {
         bool result = true;
 
-        for(int tankID = 0; tankID < numTanks; tankID++){
+        for(int tankID = 1; tankID <= numTanks; tankID++){
             result = result && sys.addTank(tankID, randCap.getRandNum());
         }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: addErrorTank
+     * ----------------------
+     * sys: Fuel System object
+     * numTanks: Number of invalid tanks
+     * 
+     * Attempts to add invalid tanks to the system
+     * 
+     * return: True if no tanks were added, false otherwise
+     */
+    bool addErrortank(FuelSys& sys, Random& randCap, int numTanks) {
+        bool result = true;
+
+        //Attempts to add tanks with valid capacities but invalid IDs
+        for (int tankID = -1; tankID > -numTanks; tankID--) {
+            result = result && !sys.addTank(tankID, randCap.getRandNum());
+        }
+
+        //Attemps to add tanks with valid IDs but invalid capacities
+        for (int tankID = numTanks; tankID < numTanks * 2; tankID++) {
+            result = result && !sys.addTank(tankID, MINCAP - 1);
+        }
+
+        //Attemps to add tanks with existing IDs
+        for (int tankID = numTanks; tankID < numTanks; tankID++) {
+            result = result && !sys.addTank(tankID, randCap.getRandNum());
+        }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: addEdgeTank
+     * ---------------------
+     * sys: Fuel system object
+     * randCap: Capacity for each tank
+     * numTanks: Number of tanks in the system
+     * 
+     * Adds tanks with minimum ID and capacity
+     * 
+     * return: True if each tank was added, false otherwise
+     */
+    bool addEdgeTank(FuelSys& sys, Random& randCap, int numTanks) {
+        bool result = true;
+
+        result = result && sys.addTank(0, randCap.getRandNum());
+        result = result && sys.addTank(numTanks + 1, MINCAP);
 
         sys.dumpSys();
 
@@ -113,13 +168,65 @@ public:
     bool fillNormalTank(FuelSys& sys, int numTanks) {
         bool result = true;
 
-        for (int tankID = 0; tankID < numTanks; tankID++) {
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
             if (tankID % 2 == 0) {
                 //Fill partial then the rest
                 result = result && sys.fill(tankID, MINCAP / 2);
                 result = result && sys.fill(tankID, DEFCAP);
             }
         }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: fillErrorTank
+     * -----------------------
+     * sys: Fuel System object
+     * 
+     * Attempts to fill invalid tanks and fuel amounts
+     * 
+     * return: True if no tank was filled
+     */
+    bool fillErrorTank(FuelSys& sys, int numTanks) {
+        bool result = true;
+
+        //Attempt to fill valid tanks with invalid fuel amount
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            result = result && !sys.fill(tankID, -1);
+        }
+
+        //Attemps to fill invalid tanks with valid fuel amount
+        for (int tankID = -1; tankID > -numTanks; tankID--) {
+            result = result && !sys.fill(tankID, MINCAP);
+        }
+
+        //Attemps to fill a full tank
+        sys.fill(6, DEFCAP);
+        result = result && !sys.fill(6, 0);
+        result = result && !sys.fill(6, 1);
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: fillEdgeTank
+     * ----------------------
+     * sys: Fuel System object
+     * 
+     * Fills tanks to full and by none
+     * 
+     * return: True if each tank was filled to max or not at all, false otherwise
+     */
+    bool fillEdgeTank(FuelSys& sys) {
+        bool result = true;
+
+        result = result && sys.fill(0, DEFCAP); //Fill from 0 to max
+        result = result && sys.fill(1, 0); //Fill by 0
 
         sys.dumpSys();
 
@@ -141,13 +248,83 @@ public:
     {
         bool result = true;
 
-        for (int tankID = 0; tankID < numTanks; tankID++) {
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
             if (tankID % 2 == 0) {
-                for (int pumpID = 0; pumpID < numPumps; pumpID++) {
+                for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
                     result = result && sys.drain(tankID, pumpID, MINCAP / numPumps);
                 }
             }
         }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: drainErrorTank
+     * ------------------------
+     * sys: Fuel system object
+     * numTanks: Tanks in the system
+     * numPumps: Pumps in the system
+     * 
+     * Attempts to drain tanks with invalid IDs, pumps, and fuel ammounts
+     * 
+     * return: True if no fuel is drained, false otherwise
+     */
+    bool drainErrorTank(FuelSys& sys, int numTanks, int numPumps) {
+        bool result = true;
+
+        //Attempt to drain valid fuel from valid tanks with invalid pumps 
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            if (tankID % 2 == 0) {
+                for (int pumpID = -1; pumpID > numPumps; pumpID--) {
+                    result = result && !sys.drain(tankID, pumpID, 1);
+                }
+            }
+        }
+
+        //Attempt to drain invalid fuel from valid tanks with valid pumps
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            if (tankID % 2 == 0) {
+                for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
+                    result = result && !sys.drain(tankID, pumpID, -1);
+                }
+            }
+        }
+
+        //Attempt to drain valid fuel from invalid tanks with valid pumps
+        for (int tankID = -1; tankID > numTanks; tankID--) {
+            if (-tankID % 2 == 0) {
+                for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
+                    result = result && !sys.drain(tankID, pumpID, 1);
+                }
+            }
+        }
+
+        //Attempt to drain fuel to a full tank
+        sys.fill(8, DEFCAP);
+        result = result && !sys.drain(7, 2, DEFCAP);
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: drainEdgeTank
+     * -----------------------
+     * sys: Fuel System object
+     * 
+     * return: True if all fuel was transfered from one tank to another, false otherwise
+     */
+    bool drainEdgeTank(FuelSys& sys) {
+        bool result = true;
+
+        //Drain all fuel from source and fill an empty destination completely
+        sys.addPump(10, 7, 11);
+        sys.fill(10, DEFCAP);
+        result = result && sys.drain(10, 7, DEFCAP);
 
         sys.dumpSys();
 
@@ -167,11 +344,61 @@ public:
     bool removeNormalTank(FuelSys& sys, int numTanks) {
         bool result = true;
 
-        for (int tankID = 0; tankID < numTanks; tankID++) {
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
             if (tankID % 2 == 0) {
                 result = result && sys.removeTank(tankID);
             }
         }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: removeErrorTank
+     * -------------------------
+     * sys: Fuel System object
+     * numTanks: Number of tanks in the system
+     * 
+     * Attempt to remove invalid tanks
+     * 
+     * return: True if no tanks were removed, false otherwise
+     */
+    bool removeErrorTank(FuelSys& sys, int numTanks) {
+        bool result = true;
+
+        //Attempt to remove a non existing tank
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            if (tankID % 2 == 0) {
+                result = result && !sys.removeTank(tankID);
+            }
+        }
+
+        //Attempt to remove invalid tank ids
+        for (int tankID = -1; tankID > numTanks; tankID--) {
+            result = result && !sys.removeTank(tankID);
+        }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: removeEdgeTank
+     * ------------------------
+     * sys: Fuel System object
+     * 
+     * Removes the first and last tanks in the system
+     * 
+     * return: True if the ends were removed
+     */
+    bool removeEdgeTank(FuelSys& sys) {
+        bool result = true;
+
+        result = result && sys.removeTank(7);
+        result = result && sys.removeTank(0);
 
         sys.dumpSys();
 
@@ -200,6 +427,47 @@ public:
     }
 
     /*
+     * Function: findErrorTank
+     * -----------------------
+     * sys: Fuel system object
+     * numTanks: Number of invalid tanks
+     * 
+     * Attempts to find invalid tanks
+     * 
+     * return: True if no tank was found, false otherwise
+     */
+    bool findErrorTank(FuelSys& sys, int numTanks) {
+        bool result = true;
+
+        for (int tankID = -1; tankID < -numTanks; tankID++) {
+            result = result && sys.findTank(tankID);
+        }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: findEdgeTank
+     * ----------------------
+     * sys: Fuel system with one tank
+     * 
+     * The tank found should stay in the first position
+     * 
+     * return: True if the tank is found and is the head of the list, false otherwise
+     */
+    bool findEdgeTank(FuelSys& sys) {
+        bool result = true;
+
+        result = sys.findTank(1);
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
      * Function: addNormalPump
      * -----------------------
      * sys: Fuel system object
@@ -213,12 +481,76 @@ public:
     bool addNormalPump(FuelSys& sys, int numTanks, int numPumps) {
         bool result = true;
 
-        for (int tankID = 0; tankID < numTanks; tankID++) {
-            for (int pumpID = 0; pumpID < numPumps; pumpID++) {
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
                 int targetID = (tankID + 1) % numTanks;
                 result = result && sys.addPump(tankID, pumpID, targetID);
             }
         }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: addErrorPump
+     * ----------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * numPumps: Number of pumps to add to the system
+     * 
+     * Attempts to add invalid pumps to valid tanks and valid pumps to invalid tanks
+     * 
+     * return: True if no pumps were added, false otherwise
+     */
+    bool addErrorPump(FuelSys& sys, int numTanks, int numPumps) {
+        bool result = true;
+
+        //Attempt to add invalid pumps to valid tanks with valid target IDs
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            for (int pumpID = -1; pumpID > -numPumps; pumpID--) {
+                int targetID = (tankID + 1) % numTanks;
+                result = result && !sys.addPump(tankID, pumpID, targetID);
+            }
+        }
+
+        //Attempt to add valid pumps to valid tanks with invalid target IDs
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
+                int targetID = -((tankID + 1) % numTanks);
+                result = result && !sys.addPump(tankID, pumpID, targetID);
+            }
+        }
+
+        //Attempt to add valid pumps to invalid tanks with valid target IDs
+        for (int tankID = -1; tankID > numTanks; tankID--) {
+            for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
+                int targetID = (-tankID + 1) % numTanks;
+                result = result && !sys.addPump(tankID, pumpID, targetID);
+            }
+        }
+
+        result = result && !sys.addPump(1, 6, 1); //Attempt to add a new pump to a tank with the target as itself
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: addEdgePump
+     * ---------------------
+     * sys: Fuel System object
+     * 
+     * Add a pump with the min pump ID
+     * 
+     * return: True if pump was added, false otherwise
+     */
+    bool addEdgePump(FuelSys& sys) {
+        bool result = true;
+
+        result = result && sys.addPump(0, 0, 1);
 
         sys.dumpSys();
 
@@ -239,8 +571,8 @@ public:
     bool removeNormalPump(FuelSys& sys, int numTanks, int numPumps) {
         bool result = true;
 
-        for (int tankID = 0; tankID < numTanks; tankID++) {
-            for (int pumpID = 0; pumpID < numPumps; pumpID++) {
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
                 if (pumpID % 2 == 0) {
                     result = result && sys.removePump(tankID, pumpID);
                 }
@@ -253,19 +585,77 @@ public:
     }
 
     /*
+     * Function: removeErrorPump
+     * -------------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * numPumps: Number of pumps in the system
+     * 
+     * Attempt to remove invalid pumps
+     * 
+     * return: True if no pumps were removed, false otherwise
+     */
+    bool removeErrorPump(FuelSys& sys, int numTanks, int numPumps) {
+        bool result = true;
+
+        //Attempts to remove an invalid pump from a valid tank
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            for (int pumpID = -1; pumpID > -numPumps; pumpID--) {
+                result = result && !sys.removePump(tankID, pumpID);
+            }
+        }
+
+        //Attempts to remove a valid pump from an invalid tank
+        for (int tankID = -1; tankID > numTanks; tankID--) {
+            for (int pumpID = 1; pumpID <= numPumps; pumpID++) {
+                result = result && !sys.removePump(tankID, pumpID);
+            }
+        }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
+     * Function: removeEdgePump
+     * ------------------------
+     * sys: Fuel system object
+     * numTanks: Number of tanks in the system
+     * 
+     * Remove the first and last pumps in each tank
+     * 
+     * return: True if the pumps were removed
+     */
+    bool removeEdgePump(FuelSys& sys, int numTanks) {
+        bool result = true;
+
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
+            cout << tankID << "\n";
+            result = result && sys.removePump(tankID, 1);
+            result = result && sys.removePump(tankID, 5);
+        }
+
+        sys.dumpSys();
+
+        return result;
+    }
+
+    /*
      * Function: copyNormalSys
      * ------------------------
      * source: Fuel system to copy tanks from
      * destination: Fuel system to copy tanks to
+     * numTanks: Number of tanks in source system
      * 
-     * 
+     * return: True if the source system was completely copied
      */
     bool copyNormalSys(FuelSys& source, FuelSys& destination, int numTanks) {
         bool result = true;
 
         destination = source;
 
-        for (int tankID = 0; tankID < numTanks; tankID++) {
+        for (int tankID = 1; tankID <= numTanks; tankID++) {
             result = result && source.findTank(tankID);
             result = result && destination.findTank(tankID);
         }
@@ -274,12 +664,44 @@ public:
 
         return result;
     }
+
+    /*
+     * Function: copyEdgeSys
+     * ---------------------
+     * source: Fuel system to copy tanks to and from
+     * numTanks: Number of tanks in source system
+     *
+     * Copy a system to itself and copy an empty system to a non empty system
+     * 
+     * return: True if no changes were made to the first assignment and if the second assignment becomes empty, false otherwise
+     */
+    bool copyEdgeSys(FuelSys& source, int numTanks) {
+        bool result = true;
+
+        source = source;
+
+        for (int tankID = 0; tankID <= numTanks + 1; tankID++) {
+            result = result && source.findTank(tankID);
+        }
+
+        FuelSys emptySys;
+
+        source = emptySys;
+
+        for (int tankID = 0; tankID <= numTanks + 1; tankID++) {
+            result = result && !source.findTank(tankID);
+        }
+
+        source.dumpSys();
+
+        return result;
+    }
 };
 
 int main() {
     Tester test;
     FuelSys sys;
-    FuelSys emptySys;
+    FuelSys singleSys; //System with one tank
     Random randCap(MINCAP, DEFCAP); //Range for valid test capacities
     int numTanks = 10; //Number of tanks in the system
     int numPumps = 5; //Number of pumps in the system
@@ -292,12 +714,42 @@ int main() {
         cout << "addNormalTank test returned unsuccessful\n";
     }
 
+    if (test.addErrortank(sys, randCap, numTanks)) {
+        cout << "addErrorTank test returned successful\n";
+    }
+    else {
+        cout << "addErrorTank test returned unsuccessul\n";
+    }
+
+    if (test.addEdgeTank(sys, randCap, numTanks)) {
+        cout << "addEdgeTank test returned successful\n";
+    }
+    else {
+        cout << "addEdgeTank test returned unsuccessful\n";
+    }
+
     //Tests finding tanks
     if (test.findNormalTank(sys, numTanks)) {
         cout << "findNormalTank test returned successful\n";
     }
     else {
         cout << "findNormalTank test returned unsuccessful\n";
+    }
+
+    if (test.findErrorTank(sys, numTanks)) {
+        cout << "findErrorTank test returned successful\n";
+    }
+    else {
+        cout << "findErrorTank test returned unsuccessful\n";
+    }
+
+    singleSys.addTank(1, MINCAP);
+
+    if (test.findEdgeTank(singleSys)) {
+        cout << "findEdgeTank test returned successful\n";
+    }
+    else {
+        cout << "findEdgeTank test returned unsuccessful\n";
     }
 
     //Tests adding pumps
@@ -308,7 +760,21 @@ int main() {
         cout << "addNormalPump test returned unsuccessful\n";
     }
 
-    //Tests filling and transferring fuel to pumps
+    if (test.addErrorPump(sys, numTanks, numPumps)) {
+        cout << "addErrorPump test returned successful\n";
+    }
+    else {
+        cout << "addErrorPump test returned unsuccessful\n";
+    }
+
+    if (test.addEdgePump(sys)) {
+        cout << "addEdgePump test returned successful\n";
+    }
+    else {
+        cout << "addEdgePump test returned unsuccessful\n";
+    }
+
+    //Tests filling tanks
     if (test.fillNormalTank(sys, numTanks)) {
         cout << "fillNormalTank test returned successful\n";
     }
@@ -316,6 +782,21 @@ int main() {
         cout << "fillNormalTank test returned unsuccesful\n";
     }
 
+    if (test.fillErrorTank(sys, numTanks)) {
+        cout << "fillErrorTank test returned successful\n";
+    }
+    else {
+        cout << "fillErrorTank test returned unsuccessful\n";
+    }
+
+    if (test.fillEdgeTank(sys)) {
+        cout << "fillEdgeTank test returned successful\n";
+    }
+    else {
+        cout << "fillEdgeTank test returned unsuccessful\n";
+    }
+
+    //Tests draining tanks
     if (test.drainNormalTank(sys, numTanks, numPumps)) {
         cout << "drainNormalTank test returned successful\n";
     }
@@ -323,12 +804,33 @@ int main() {
         cout << "drainNormalTank test returned unsuccessful\n";
     }
 
+    if (test.drainErrorTank(sys, numTanks, numPumps)) {
+        cout << "drainErrorTank test returned successful\n";
+    }
+    else {
+        cout << "drainErrorTank test returned unsuccessful\n";
+    }
+
+    if (test.drainEdgeTank(sys)) {
+        cout << "drainEdgeTank test returned successful\n";
+    }
+    else {
+        cout << "drainEdgeTank test returned unsuccessful\n";
+    }
+
     //Tests copying fuel systems
-    if (test.copyNormalSys(sys, emptySys, numTanks)) {
+    if (test.copyNormalSys(sys, singleSys, numTanks)) {
         cout << "copyNormalSys test returned successful\n";
     }
     else {
         cout << "copyNormalSys test returned unsuccessful\n";
+    }
+
+    if (test.copyEdgeSys(singleSys, numTanks)) {
+        cout << "copyEdgeSys test returned successful\n";
+    }
+    else {
+        cout << "copyEdgeSys test returned unsuccessful\n";
     }
 
     //Tests removing pumps
@@ -339,12 +841,40 @@ int main() {
         cout << "removeNormalPump test returned unsuccessful\n";
     }
 
+    if (test.removeErrorPump(sys, numTanks, numPumps)) {
+        cout << "removeErrorPump test returned successful\n";
+    }
+    else {
+        cout << "removeErrorPump test returned unsuccessful\n";
+    }
+
+    if (test.removeEdgePump(sys, numTanks)) {
+        cout << "removeEdgePump test returned successful\n";
+    }
+    else {
+        cout << "removeEdgePump test returned unsuccessful\n";
+    }
+
     //Tests removing tanks
     if (test.removeNormalTank(sys, numTanks)) {
         cout << "removeNormalTank test returned successful\n";
     }
     else {
         cout << "removeNormalTank test returned unsuccessful\n";
+    }
+
+    if (test.removeErrorTank(sys, numTanks)) {
+        cout << "removeErrorTank test returned successful\n";
+    }
+    else {
+        cout << "removeErrorTank test returned unsuccessful\n";
+    }
+
+    if (test.removeEdgeTank(sys)) {
+        cout << "removeEdgeTank test returned successful\n";
+    }
+    else {
+        cout << "removeEdgeTank test returned unsuccessful\n";
     }
 
     return 0;

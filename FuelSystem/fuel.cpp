@@ -177,6 +177,9 @@ bool FuelSys::removeTank(int tankID) {
  * return: True if the pump was added, else false
  */
 bool FuelSys::addPump(int tankID, int pumpID, int targetTank) {
+	if (pumpID < 0 || tankID == targetTank) {
+		return false;
+	}
 	//Checks both the existing tank and the target are in the list
 	if (findTank(targetTank) && findTank(tankID)) {
 		Tank* currentTank = nullptr;
@@ -262,6 +265,10 @@ bool FuelSys::removePump(int tankID, int pumpID) {
  * return: True if some amount of fuel was added to the tank, false if the tank could be found or it's full
  */
 bool FuelSys::fill(int tankID, int fuel) {
+	if (fuel < 0) {
+		return false;
+	}
+
 	if (findTank(tankID)) {
 		Tank* fillTank = nullptr;
 		if (m_current->m_next == nullptr) {
@@ -299,6 +306,9 @@ bool FuelSys::fill(int tankID, int fuel) {
  * return: True if fuel was transferred
  */
 bool FuelSys::drain(int tankID, int pumpID, int fuel) {
+	if (fuel < 0) {
+		return false;
+	}
 	if (findTank(tankID)) {
 		Tank* sourceTank = nullptr;
 
