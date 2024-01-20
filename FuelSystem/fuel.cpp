@@ -159,6 +159,27 @@ bool FuelSys::removeTank(int tankID) {
 		currentPump = nextPump;
 	}
 
+	//Delete pumps from other tanks that target this tank
+	Tank* linkTank = m_current;
+
+	while (linkTank != nullptr) {
+		Pump* linkPump = linkTank->m_pumps;
+
+		while (linkPump != nullptr) {
+			if (linkPump->m_target == tankID) {
+				removePump(linkTank->m_tankID, linkPump->m_pumpID);
+			}
+			if (findPump(linkTank, linkPump->m_pumpID)){
+				linkPump = linkPump->m_next;
+			}
+			else {
+				linkPump = linkTank->m_pumps;
+			}
+		}
+		
+		linkTank = linkTank->m_next;
+	}
+
 	delete currentTank;
 	currentTank = nullptr;
 
